@@ -79,3 +79,28 @@ Feature: Pipeline Triggers
     Then Cleanup pipeline "trigger_test_pipeline_1"
     Then Cleanup pipeline "trigger_test_pipeline_2"
     Then Cleanup pipeline "trigger_test_pipeline_3"
+
+    @PIPELINE_TRIGGERS_TEST
+    Scenario: Deploy seven pipelines and check pagination on inbound triggers tab
+      When Deploy pipeline "trigger_test_pipeline_1" with pipeline JSON file "pipeline_with_macros.json"
+      When Deploy pipeline "trigger_test_pipeline_2" with pipeline JSON file "pipeline_with_macros.json"
+      When Deploy pipeline "trigger_test_pipeline_3" with pipeline JSON file "pipeline_with_macros.json"
+      When Deploy pipeline "trigger_test_pipeline_4" with pipeline JSON file "pipeline_with_macros.json"
+      When Deploy pipeline "trigger_test_pipeline_5" with pipeline JSON file "pipeline_with_macros.json"
+      When Deploy pipeline "trigger_test_pipeline_6" with pipeline JSON file "pipeline_with_macros.json"
+      When Deploy pipeline "trigger_test_pipeline_7" with pipeline JSON file "pipeline_with_macros.json"
+      Then Open inbound triggers and check pagination with pipelines:
+        |trigger_test_pipeline_1|
+        |trigger_test_pipeline_2|
+        |trigger_test_pipeline_3|
+        |trigger_test_pipeline_4|
+        |trigger_test_pipeline_5|
+        |trigger_test_pipeline_6|
+        |trigger_test_pipeline_7|
+      Then Cleanup pipeline "trigger_test_pipeline_1"
+      Then Cleanup pipeline "trigger_test_pipeline_2"
+      Then Cleanup pipeline "trigger_test_pipeline_3"
+      Then Cleanup pipeline "trigger_test_pipeline_4"
+      Then Cleanup pipeline "trigger_test_pipeline_5"
+      Then Cleanup pipeline "trigger_test_pipeline_6"
+      Then Cleanup pipeline "trigger_test_pipeline_7"

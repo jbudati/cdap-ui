@@ -65,6 +65,7 @@ interface IPipelineTriggersRowViewProps {
   configureError: string;
   pipelineName: string;
   workflowName: string;
+  isEnabledForTriggers?: boolean;
 }
 
 const PipelineTriggersRow = ({
@@ -77,6 +78,7 @@ const PipelineTriggersRow = ({
   configureError,
   pipelineName,
   workflowName,
+  isEnabledForTriggers = false,
 }: IPipelineTriggersRowViewProps) => {
   const [state, dispatch] = useReducer(triggerConditionReducer, initialInlineTriggerState);
 
@@ -156,16 +158,49 @@ const PipelineTriggersRow = ({
         </PipelineDescription>
         <HelperText>{T.translate(`${TRIGGER_PREFIX}.helperText`, { pipelineName })}</HelperText>
         <EventsList>
-          <CheckboxItemContainer onClick={() => dispatch({ type: 'COMPLETED' })}>
-            <Checkbox checked={state.completed} color="primary" size="small" />
+          <CheckboxItemContainer
+            onClick={
+              isEnabledForTriggers
+                ? () => !state.selected && dispatch({ type: 'COMPLETED' })
+                : undefined
+            }
+          >
+            <Checkbox
+              disabled={!isEnabledForTriggers}
+              checked={state.completed}
+              color="primary"
+              size="small"
+            />
             <span>{T.translate(`${TRIGGER_PREFIX}.Events.COMPLETED`)}</span>
           </CheckboxItemContainer>
-          <CheckboxItemContainer onClick={() => dispatch({ type: 'KILLED' })}>
-            <Checkbox checked={state.killed} color="primary" size="small" />
+          <CheckboxItemContainer
+            onClick={
+              isEnabledForTriggers
+                ? () => !state.selected && dispatch({ type: 'KILLED' })
+                : undefined
+            }
+          >
+            <Checkbox
+              disabled={!isEnabledForTriggers}
+              checked={state.killed}
+              color="primary"
+              size="small"
+            />
             <span>{T.translate(`${TRIGGER_PREFIX}.Events.KILLED`)}</span>
           </CheckboxItemContainer>
-          <CheckboxItemContainer onClick={() => dispatch({ type: 'FAILED' })}>
-            <Checkbox checked={state.failed} color="primary" size="small" />
+          <CheckboxItemContainer
+            onClick={
+              isEnabledForTriggers
+                ? () => !state.selected && dispatch({ type: 'FAILED' })
+                : undefined
+            }
+          >
+            <Checkbox
+              disabled={!isEnabledForTriggers}
+              checked={state.failed}
+              color="primary"
+              size="small"
+            />
             <span>{T.translate(`${TRIGGER_PREFIX}.Events.FAILED`)}</span>
           </CheckboxItemContainer>
         </EventsList>
@@ -174,7 +209,7 @@ const PipelineTriggersRow = ({
 
         <ActionButtonsContainer>
           <PipelineTriggerButton
-            disabled={enabledButtonDisabled}
+            disabled={!isEnabledForTriggers || enabledButtonDisabled}
             onClick={() => enableScheduleClick()}
             data-cy={`${pipelineRow}-enable-trigger-btn`}
             data-testid={`${pipelineRow}-enable-trigger-btn`}
@@ -182,6 +217,7 @@ const PipelineTriggersRow = ({
             {T.translate(`${PREFIX}.buttonLabel`)}
           </PipelineTriggerButton>
           <PipelineTriggerButton
+            disabled={!isEnabledForTriggers}
             onClick={handlePayloadToggleClick}
             data-cy={`${triggeringPipelineInfo.id}-trigger-config-btn`}
             data-testid={`${triggeringPipelineInfo.id}-trigger-config-btn`}

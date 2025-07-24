@@ -21,9 +21,12 @@ import io.cdap.e2e.utils.ElementHelper;
 import io.cdap.e2e.utils.SeleniumDriver;
 import io.cucumber.java.en.Then;
 import org.junit.Assert;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+
+import java.util.List;
 
 
 public class PipelineTriggers {
@@ -193,5 +196,52 @@ public class PipelineTriggers {
     Assert.assertFalse(Helper.isElementExists(
       Helper.getCssSelectorByDataTestId(crossArgMappingTriggerName + "-collapsed")));
     ElementHelper.clickOnElement(Helper.locateElementByTestId("inbound-triggers-toggle"));
+  }
+
+  @Then("Open inbound triggers and check pagination with pipelines:")
+  public void openInboundTriggerAndCheckPagination(List<String> totalPipelinesList) {
+    ElementHelper.clickOnElement(Helper.locateElementByTestId("inbound-triggers-toggle"));
+    WebElement rowsPerPageDropdown = Helper.locateElementByTestId("composite-triggers-pipeline-pagination-select");
+    Select rowsPerPageSelect = new Select(rowsPerPageDropdown);
+
+    changePageSizeAndVerify("25",totalPipelinesList.size());
+    changePageSizeAndVerify("5",totalPipelinesList.size());
+
+    if(totalPipelinesList.size() <= 5) return;
+    WebElement nextPageButtonIcon = Helper.locateElementByTestId("composite-triggers-pipeline-pagination-next-btn");
+    if(nextPageButtonIcon.isEnabled()) {
+      nextPageButtonIcon.click();
+    }
+    checkFirstPipelineDisplayed(totalPipelinesList.get(5));
+
+    WebElement previousPageButtonIcon = Helper.locateElementByTestId("composite-triggers-pipeline-pagination-back-btn");
+    if(previousPageButtonIcon.isEnabled()) {
+      previousPageButtonIcon.click();
+    }
+    checkFirstPipelineDisplayed(totalPipelinesList.get(0));
+  }
+
+  private void checkFirstPipelineDisplayed(String firstPipeline) {
+    String pipelinesContainerTestId = "composite-triggers-pipelines-container";
+    SeleniumDriver.getWaitDriver(3).until(ExpectedConditions.textToBePresentInElementLocated(By.xpath("//div[@data-testid='" + pipelinesContainerTestId+ "']/div[1]"), firstPipeline));
+  }
+
+  private void changePageSizeAndVerify(String desiredPageSize, int totalPipelinesCount) {
+    WebElement rowsPerPageDropdown = Helper.locateElementByTestId("composite-triggers-pipeline-pagination-select");
+    Select rowsPerPageSelect = new Select(rowsPerPageDropdown);
+    rowsPerPageSelect.selectByValue(desiredPageSize);
+
+    int expectedPipelinesCount = Math.min( Integer.parseInt(desiredPageSize),totalPipelinesCount);
+
+    String pipelinesContainerTestId = "composite-triggers-pipelines-container";
+    SeleniumDriver.getWaitDriver(3).until(ExpectedConditions.numberOfElementsToBe(By.xpath("//div[@data-testid='" + pipelinesContainerTestId + "']/div"),expectedPipelinesCount));
+
+    WebElement nextPageButtonIcon = Helper.locateElementByTestId("composite-triggers-pipeline-pagination-next-btn");
+    if(expectedPipelinesCount < totalPipelinesCount) {
+      Assert.assertTrue(nextPageButtonIcon.isEnabled());
+    }
+    else{
+      Assert.assertFalse(nextPageButtonIcon.isEnabled());
+    }
   }
 }
